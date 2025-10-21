@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id                String             @id @default(uuid())
+  email             String             @unique
+  password          String
+  name              String
+  ieeeNumber        String             @unique @map("ieee_number")
+  isVerified        Boolean            @default(false) @map("is_verified")
+  role              Role               @default(USER)
+  bio               String?
+  avatarUrl         String?            @map("avatar_url")
+  resetPasswordToken String?          @map("reset_password_token")
+  resetPasswordExpires DateTime?       @map("reset_password_expires")
+  
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  
+  // Relations
+  createdEvents     Event[]            @relation("EventCreator")
+  comments          Comment[]
+  registrations     EventRegistration[]
+  
+  @@map("users")
+}
+
+model Event {
+  id                String             @id @default(uuid())
+  title             String
+  slug              String             @unique
+  description       String             @db.Text
+  shortDescription  String?            @map("short_description")
+  bannerUrl         String?            @map("banner_url")
+  startDate         DateTime           @map("start_date")
+  endDate           DateTime?          @map("end_date")
+  location          String
+  category          String
+  maxParticipants   Int?               @map("max_participants")
+  registrationDeadline DateTime?       @map("registration_deadline")
+  status            EventStatus        @default(DRAFT)
+  
+  createdById       String             @map("created_by_id")
+  createdBy         User               @relation("EventCreator", fields: [createdById], references: [id])
+  
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  
+  // Relations
+  images            EventImage[]
+  comments          Comment[]
+  registrations     EventRegistration[]
+  
+  @@index([slug])
+  @@index([startDate])
+  @@index([category])
+  @@index([status])
+  @@map("events")
+}
+
+model EventImage {
+  id                String             @id @default(uuid())
+  url               String
+  caption           String?
+  order             Int                @default(0)
+  
+  eventId           String             @map("event_id")
+  event             Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime           @default(now()) @map("created_at")
+  
+  @@index([eventId])
+  @@map("event_images")
+}
+
+model Comment {
+  id                String             @id @default(uuid())
+  content           String             @db.Text
+  
+  authorId          String             @map("author_id")
+  author            User               @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  eventId           String             @map("event_id")
+  event             Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  parentId          String?            @map("parent_id")
+  parent            Comment?           @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies           Comment[]          @relation("CommentReplies")
+  
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  
+  @@index([eventId])
+  @@index([authorId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+model EventRegistration {
+  id                String             @id @default(uuid())
+  
+  userId            String             @map("user_id")
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  eventId           String             @map("event_id")
+  event             Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  additionalInfo    Json?              @map("additional_info") // Campos customizados do formulário
+  status            String             @default("confirmed") // confirmed, cancelled, attended
+  
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  
+  @@unique([userId, eventId])
+  @@index([eventId])
+  @@index([userId])
+  @@map("event_registrations")
+}
+
+model AuditLog {
+  id                String             @id @default(uuid())
+  userId            String?            @map("user_id")
+  action            String             // LOGIN, LOGOUT, CREATE_EVENT, UPDATE_EVENT, etc.
+  resource          String?            // events, users, etc.
+  resourceId        String?            @map("resource_id")
+  details           Json?
+  ipAddress         String?            @map("ip_address")
+  userAgent         String?            @map("user_agent")
+  
+  createdAt         DateTime           @default(now()) @map("created_at")
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

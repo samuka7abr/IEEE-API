@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ieee_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ieee
+      POSTGRES_PASSWORD: ieee_password
+      POSTGRES_DB: ieee_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: ieee_api
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgresql://ieee:ieee_password@postgres:5432/ieee_db?schema=public
+      JWT_SECRET: your-super-secret-jwt-key
+      JWT_EXPIRATION: 7d
+      PORT: 3000
+      NODE_ENV: production
+    depends_on:
+      - postgres
+    command: sh -c "npx prisma migrate deploy && npm run start:prod"
+
+volumes:
+  postgres_data:
