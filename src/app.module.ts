@@ -17,13 +17,15 @@ import { MailModule } from './modules/mail/mail.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    
+
     // Rate Limiting (RNF - Segurança)
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 10,
-    }]),
-    
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
+
     // Módulos da aplicação
     PrismaModule,
     AuthModule,
