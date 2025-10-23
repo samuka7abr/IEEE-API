@@ -1,6 +1,6 @@
 # IEEE IDP — API (Back-end)
 
-![Banner IEEE IDP](assets/IEEELogo.jpeg)
+![Banner IEEE IDP](assets/IDP-IEEELogo.jpeg)
 
 ## Sobre
 
