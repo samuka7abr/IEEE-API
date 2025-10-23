@@ -1,5 +1,5 @@
 #!/bin/bash
-
+ 
 echo "🚀 Iniciando setup do projeto IEEE API..."
 echo ""
 
