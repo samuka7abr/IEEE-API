@@ -7,7 +7,7 @@
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-## 🎉 Bem-vindo!
+## 🎉 Bem-vindo! 
 
 Este é o boilerplate completo do backend para o sistema IEEE. Você tem em mãos
 uma base sólida para começar a desenvolver!
