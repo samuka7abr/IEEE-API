@@ -70,7 +70,7 @@ export class UsersService {
 
   async findByResetToken(token: string) {
     return this.prisma.user.findFirst({
-      where: { 
+      where: {
         resetPasswordToken: token,
       },
     });
@@ -101,7 +101,7 @@ export class UsersService {
     await this.prisma.user.delete({
       where: { id },
     });
-    
+
     return { message: 'Usuário removido com sucesso' };
   }
 
