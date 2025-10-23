@@ -13,7 +13,7 @@ export class MailService {
       secure: false,
       auth: {
         user: this.configService.get('MAIL_USER'),
-        pass: this.configService.get('MAIL_PASSWORD'),
+        pass: this.configService.get('MAIL_PASS'),
       },
     });
   }
@@ -37,7 +37,7 @@ export class MailService {
 
   async sendPasswordResetEmail(email: string, name: string, token: string) {
     const resetUrl = `${this.configService.get('CORS_ORIGIN')}/reset-password?token=${token}`;
-    
+
     try {
       await this.transporter.sendMail({
         from: this.configService.get('MAIL_FROM'),
@@ -57,7 +57,11 @@ export class MailService {
     }
   }
 
-  async sendEventRegistrationNotification(adminEmails: string[], eventTitle: string, userName: string) {
+  async sendEventRegistrationNotification(
+    adminEmails: string[],
+    eventTitle: string,
+    userName: string,
+  ) {
     try {
       await this.transporter.sendMail({
         from: this.configService.get('MAIL_FROM'),
