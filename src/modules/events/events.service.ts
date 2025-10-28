@@ -39,8 +39,8 @@ export class EventsService {
     page?: number;
     limit?: number;
   }) {
-    const page = filters?.page || 1;
-    const limit = filters?.limit || 10;
+    const page = filters?.page ? Number(filters.page) : 1;
+    const limit = filters?.limit ? Number(filters.limit) : 10;
     const skip = (page - 1) * limit;
 
     const where: any = {};
