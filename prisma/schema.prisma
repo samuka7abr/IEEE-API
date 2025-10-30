@@ -46,8 +46,10 @@ model User {
 model Event {
   id                   String      @id @default(uuid())
   title                String
+  titleNormalized      String?
   slug                 String      @unique
   description          String      @db.Text
+  descriptionNormalized String?    @db.Text
   shortDescription     String?     @map("short_description")
   bannerUrl            String?     @map("banner_url")
   startDate            DateTime    @map("start_date")
