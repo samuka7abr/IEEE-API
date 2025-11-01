@@ -19,15 +19,7 @@ export class UsersService {
   async findAll() {
     return this.prisma.user.findMany({
       select: {
-        id: true,
-        email: true,
-        name: true,
-        ieeeNumber: true,
-        isVerified: true,
-        role: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
+        password: false
       },
     });
   }
@@ -36,23 +28,11 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
-        id: true,
-        email: true,
-        name: true,
-        ieeeNumber: true,
-        isVerified: true,
-        role: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
+        password: false
       },
     });
 
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
-
+    if (!user) throw new NotFoundException('Usuário não encontrado');
     return user;
   }
 
@@ -81,16 +61,7 @@ export class UsersService {
       where: { id },
       data: updateUserDto,
       select: {
-        id: true,
-        email: true,
-        name: true,
-        ieeeNumber: true,
-        isVerified: true,
-        role: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
+        password: false
       },
     });
 
