@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { userPublicSelect } from './user.constants';
 
 @Injectable()
 export class UsersService {
@@ -18,41 +19,17 @@ export class UsersService {
 
   async findAll() {
     return this.prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        ieeeNumber: true,
-        isVerified: true,
-        role: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
-      },
+      select: userPublicSelect,
     });
   }
 
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        ieeeNumber: true,
-        isVerified: true,
-        role: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      select: userPublicSelect,
     });
 
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
-
+    if (!user) throw new NotFoundException('Usuário não encontrado');
     return user;
   }
 
@@ -80,18 +57,7 @@ export class UsersService {
     const user = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        ieeeNumber: true,
-        isVerified: true,
-        role: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      select: userPublicSelect,
     });
 
     return user;
