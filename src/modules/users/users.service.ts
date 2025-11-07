@@ -6,7 +6,7 @@ import { userPublicSelect } from './user.constants';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createUserDto: CreateUserDto) {
     const user = await this.prisma.user.create({
@@ -91,4 +91,40 @@ export class UsersService {
       },
     });
   }
+
+  async exportUserData(userId: string) {
+    console.log(`Exportando dados para o usuário: ${userId}`);
+
+    const userData = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        ieeeNumber: true,
+        role: true,
+        isVerified: true,
+        bio: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+
+        // Critérios de Aceitação: Incluir eventos, comentários, inscrições
+        createdEvents: true,
+        comments: true,
+        registrations: true,
+      }
+    });
+
+    if (!userData) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    return {
+      personalData: userData,
+      exportDate: new Date(),
+      format: 'json'
+    };
+  }
 }
+
