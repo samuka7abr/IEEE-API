@@ -3,10 +3,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventStatus } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class EventsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   private normalizeText(text: string): string {
   if (!text) return '';
@@ -20,7 +24,7 @@ export class EventsService {
     // Gerar slug a partir do título
     const slug = this.generateSlug(createEventDto.title);
 
-    return this.prisma.event.create({
+    const event = await this.prisma.event.create({
       data: {
         ...createEventDto,
         slug,
@@ -40,6 +44,30 @@ export class EventsService {
         images: true,
       },
     });
+
+    // Notificar todos os usuários sobre novo evento (exceto o criador)
+    if (event.status === EventStatus.PUBLISHED) {
+      const users = await this.prisma.user.findMany({
+        where: {
+          id: { not: userId },
+        },
+        select: { id: true },
+      });
+
+      // Criar notificações para todos os usuários
+      await Promise.all(
+        users.map((user) =>
+          this.notificationsService.create({
+            userId: user.id,
+            title: 'Novo Evento Disponível',
+            message: `Um novo evento "${event.title}" foi publicado!`,
+            type: 'EVENT_REMINDER',
+          }),
+        ),
+      );
+    }
+
+    return event;
   }
 
   async findAll(filters?: {
